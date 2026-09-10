@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import AppLayout from '../../components/AppLayout.vue';
 import { formatPrice } from '../../format';
 
@@ -116,7 +116,9 @@ const fieldClasses =
         <div v-if="savedSearches.length" class="grid gap-3">
             <div v-for="savedSearch in savedSearches" :key="savedSearch.id" class="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4">
                 <div>
-                    <p class="font-medium text-slate-900">{{ savedSearch.name }}</p>
+                    <Link :href="`/saved-searches/${savedSearch.id}`" class="font-medium text-slate-900 hover:underline">
+                        {{ savedSearch.name }}
+                    </Link>
                     <p class="mt-1 text-sm text-slate-500">{{ summarize(savedSearch) }}</p>
                 </div>
                 <button type="button" class="text-sm text-slate-500 underline-offset-2 hover:underline" @click="destroy(savedSearch)">

@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Enums\PropertyType;
 use App\Enums\Tenure;
 use App\Http\Requests\StoreSavedSearchRequest;
+use App\Http\Resources\ListingResource;
 use App\Http\Resources\SavedSearchResource;
 use App\Models\Branch;
+use App\Models\Listing;
 use App\Models\SavedSearch;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -38,6 +40,29 @@ class SavedSearchController extends Controller
         $request->user()->savedSearches()->create($request->validated());
 
         return redirect()->route('saved-searches.index');
+    }
+
+    /**
+     * Criteria plus live listings currently matching this saved search. Not
+     * backfilled at save time — this always reflects "what matches right
+     * now", which avoids a burst of alerts at save-time.
+     */
+    public function show(Request $request, SavedSearch $savedSearch): Response
+    {
+        abort_unless($savedSearch->user_id === $request->user()->id, 404);
+
+        $matches = Listing::query()
+            ->live()
+            ->matchingSavedSearch($savedSearch)
+            ->latest('listed_at')
+            ->orderByDesc('id')
+            ->paginate(15)
+            ->withQueryString();
+
+        return Inertia::render('SavedSearches/Show', [
+            'savedSearch' => new SavedSearchResource($savedSearch),
+            'matches' => ListingResource::collection($matches),
+        ]);
     }
 
     /**

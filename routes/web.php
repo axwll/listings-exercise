@@ -9,4 +9,5 @@ Route::get('/listings/{listing}', [ListingController::class, 'show'])->name('lis
 
 Route::get('/saved-searches', [SavedSearchController::class, 'index'])->name('saved-searches.index');
 Route::post('/saved-searches', [SavedSearchController::class, 'store'])->name('saved-searches.store');
+Route::get('/saved-searches/{savedSearch}', [SavedSearchController::class, 'show'])->name('saved-searches.show');
 Route::delete('/saved-searches/{savedSearch}', [SavedSearchController::class, 'destroy'])->name('saved-searches.destroy');

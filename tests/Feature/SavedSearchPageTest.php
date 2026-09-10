@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\PropertyType;
+use App\Models\Listing;
 use App\Models\SavedSearch;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -129,5 +130,42 @@ class SavedSearchPageTest extends TestCase
         $this->delete("/saved-searches/{$savedSearch->id}")->assertNotFound();
 
         $this->assertDatabaseHas('saved_searches', ['id' => $savedSearch->id]);
+    }
+
+    public function test_show_renders_criteria_and_current_matches(): void
+    {
+        // Deliberately not $this->seed() — the seeder's ~190 random-priced
+        // listings would make a "count" assertion here flaky (some would
+        // coincidentally fall under max_price too).
+        $demoUser = User::factory()->create();
+        Listing::factory(2)->live()->create(['price' => 150_000]);
+        $savedSearch = SavedSearch::factory()->for($demoUser)->create(['max_price' => 200_000]);
+
+        $this->get("/saved-searches/{$savedSearch->id}")
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->component('SavedSearches/Show')
+                ->where('savedSearch.id', $savedSearch->id)
+                ->has('matches.data', 2)
+            );
+    }
+
+    public function test_show_only_returns_live_matches(): void
+    {
+        $demoUser = User::factory()->create();
+        Listing::factory()->draft()->create(['price' => 150_000]);
+        $savedSearch = SavedSearch::factory()->for($demoUser)->create();
+
+        $this->get("/saved-searches/{$savedSearch->id}")
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page->has('matches.data', 0));
+    }
+
+    public function test_show_is_not_found_for_another_users_saved_search(): void
+    {
+        $this->seed();
+        $savedSearch = SavedSearch::factory()->create(); // not the demo user
+
+        $this->get("/saved-searches/{$savedSearch->id}")->assertNotFound();
     }
 }
