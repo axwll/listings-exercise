@@ -15,7 +15,7 @@ defineProps({
 
     <AppLayout :heading="savedSearch.name" subheading="Live listings matching this search right now.">
         <div class="mb-6 flex flex-wrap gap-2 text-sm text-slate-600">
-            <span v-if="savedSearch.min_bedrooms || savedSearch.max_bedrooms" class="rounded-full bg-slate-100 px-3 py-1">
+            <span v-if="savedSearch.min_bedrooms !== null || savedSearch.max_bedrooms !== null" class="rounded-full bg-slate-100 px-3 py-1">
                 {{ savedSearch.min_bedrooms ?? 'any' }}–{{ savedSearch.max_bedrooms ?? 'any' }} bed
             </span>
             <span v-if="savedSearch.property_type_label" class="rounded-full bg-slate-100 px-3 py-1">{{ savedSearch.property_type_label }}</span>

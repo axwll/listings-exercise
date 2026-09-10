@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\ActAsDemoUser;
+use App\Http\Middleware\EnsureDemoUserIsSeeded;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -24,6 +25,10 @@ return Application::configure(basePath: dirname(__DIR__))
             ActAsDemoUser::class,
 
             HandleInertiaRequests::class,
+        ]);
+
+        $middleware->alias([
+            'ensure-demo-user' => EnsureDemoUserIsSeeded::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

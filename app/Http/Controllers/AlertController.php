@@ -15,10 +15,14 @@ class AlertController extends Controller
      */
     public function index(Request $request): Response
     {
+        // `id` is a tiebreaker: without it, alerts sharing a `created_at`
+        // second can be ordered differently between page requests, which
+        // duplicates or skips rows as you page through.
         $alerts = $request->user()->alerts()
             ->with(['listing.branch', 'savedSearches'])
             ->latest()
-            ->paginate(15)
+            ->orderByDesc('id')
+            ->paginate($request->integer('per_page', 15))
             ->withQueryString();
 
         return Inertia::render('Alerts/Index', [

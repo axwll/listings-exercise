@@ -76,4 +76,35 @@ class AlertPageTest extends TestCase
                 ->where('alerts.data.0.matched_saved_searches', [])
             );
     }
+
+    /**
+     * `id` is a tiebreaker: without it, alerts sharing a `created_at` second
+     * can be ordered differently between page requests, duplicating or
+     * skipping rows as you page through — the same issue ListingController's
+     * index already guards against.
+     */
+    public function test_index_paginates_deterministically_when_created_at_ties(): void
+    {
+        $demoUser = User::factory()->create();
+        $createdAt = now()->subDay();
+        Alert::factory(6)->for($demoUser)->create(['created_at' => $createdAt]);
+
+        $ids = fn (string $url) => collect(
+            $this->get($url)->viewData('page')['props']['alerts']['data']
+        )->pluck('id')->all();
+
+        $first = $ids('/alerts?per_page=3&page=1');
+        $second = $ids('/alerts?per_page=3&page=2');
+
+        $this->assertSame([], array_intersect($first, $second), 'Pages must not overlap.');
+        $this->assertCount(6, array_unique([...$first, ...$second]));
+    }
+
+    public function test_index_fails_gracefully_when_no_user_is_seeded(): void
+    {
+        // No $this->seed(), no User::factory() — simulates a freshly
+        // migrated but unseeded database, where the demo-auth stub resolves
+        // no user at all.
+        $this->get('/alerts')->assertStatus(503);
+    }
 }

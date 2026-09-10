@@ -52,7 +52,7 @@ function destroy(savedSearch) {
 
 function summarize(savedSearch) {
     const parts = [];
-    if (savedSearch.min_bedrooms || savedSearch.max_bedrooms) {
+    if (savedSearch.min_bedrooms !== null || savedSearch.max_bedrooms !== null) {
         parts.push(`${savedSearch.min_bedrooms ?? 'any'}–${savedSearch.max_bedrooms ?? 'any'} bed`);
     }
     if (savedSearch.property_type_label) parts.push(savedSearch.property_type_label);

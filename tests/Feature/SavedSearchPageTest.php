@@ -3,10 +3,12 @@
 namespace Tests\Feature;
 
 use App\Enums\PropertyType;
+use App\Models\Branch;
 use App\Models\Listing;
 use App\Models\SavedSearch;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
 
@@ -167,5 +169,36 @@ class SavedSearchPageTest extends TestCase
         $savedSearch = SavedSearch::factory()->create(); // not the demo user
 
         $this->get("/saved-searches/{$savedSearch->id}")->assertNotFound();
+    }
+
+    /**
+     * ListingResource unconditionally accesses $this->branch, so a matches
+     * query that doesn't eager-load it lazy-loads branch once per row.
+     */
+    public function test_show_eager_loads_branch_to_avoid_n_plus_one(): void
+    {
+        $demoUser = User::factory()->create();
+        $branches = Branch::factory(10)->create();
+        foreach ($branches as $branch) {
+            Listing::factory()->live()->for($branch)->create(['price' => 150_000]);
+        }
+        $savedSearch = SavedSearch::factory()->for($demoUser)->create(['max_price' => 200_000]);
+
+        DB::enableQueryLog();
+        $this->get("/saved-searches/{$savedSearch->id}")->assertOk();
+        $queryCount = count(DB::getQueryLog());
+        DB::disableQueryLog();
+
+        // Without eager-loading: 1 (saved search binding) + 1 (matches page)
+        // + 10 (one lazy-loaded branch per row) = 12. With it: ~4.
+        $this->assertLessThan(8, $queryCount, 'Expected branch to be eager-loaded, not lazy-loaded per listing.');
+    }
+
+    public function test_index_fails_gracefully_when_no_user_is_seeded(): void
+    {
+        // No $this->seed(), no User::factory() — simulates a freshly
+        // migrated but unseeded database, where the demo-auth stub resolves
+        // no user at all.
+        $this->get('/saved-searches')->assertStatus(503);
     }
 }

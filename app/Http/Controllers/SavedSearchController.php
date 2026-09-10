@@ -49,10 +49,11 @@ class SavedSearchController extends Controller
      */
     public function show(Request $request, SavedSearch $savedSearch): Response
     {
-        abort_unless($savedSearch->user_id === $request->user()->id, 404);
+        $this->authorizeOwner($request, $savedSearch);
 
         $matches = Listing::query()
             ->live()
+            ->with('branch')
             ->matchingSavedSearch($savedSearch)
             ->latest('listed_at')
             ->orderByDesc('id')
@@ -71,10 +72,15 @@ class SavedSearchController extends Controller
      */
     public function destroy(Request $request, SavedSearch $savedSearch): RedirectResponse
     {
-        abort_unless($savedSearch->user_id === $request->user()->id, 404);
+        $this->authorizeOwner($request, $savedSearch);
 
         $savedSearch->delete();
 
         return redirect()->route('saved-searches.index');
+    }
+
+    private function authorizeOwner(Request $request, SavedSearch $savedSearch): void
+    {
+        abort_unless($savedSearch->user_id === $request->user()->id, 404);
     }
 }
