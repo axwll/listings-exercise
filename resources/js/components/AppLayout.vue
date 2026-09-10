@@ -19,6 +19,7 @@ defineProps({
                 </Link>
                 <nav class="flex gap-4 text-sm font-medium text-slate-500">
                     <Link href="/saved-searches" class="transition hover:text-slate-900">Saved searches</Link>
+                    <Link href="/alerts" class="transition hover:text-slate-900">Alerts</Link>
                 </nav>
             </div>
             <h1 class="mt-2 text-3xl font-bold tracking-tight">{{ heading }}</h1>
