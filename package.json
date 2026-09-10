@@ -3,8 +3,15 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "install-all": "npm i && composer install",
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "serve": "php artisan serve",
+        "test": "php artisan test",
+        "pint:ro": "vendor/bin/pint --test",
+        "pint": "vendor/bin/pint --repair",
+        "analysis": "vendor/bin/phpstan analyse --memory-limit 4048M",
+        "pre-push": "npm run pint:ro && npm run analysis && npm run test"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
