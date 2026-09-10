@@ -6,6 +6,7 @@
         "install-all": "npm i && composer install",
         "build": "vite build",
         "dev": "vite",
+        "serve": "php artisan serve",
         "test": "php artisan test",
         "pint:ro": "vendor/bin/pint --test",
         "pint": "vendor/bin/pint --repair",

@@ -107,6 +107,18 @@ class ListingPageTest extends TestCase
             ->assertSessionHasErrors('property_type');
     }
 
+    public function test_index_rejects_a_price_above_the_cap(): void
+    {
+        $this->get('/?max_price=20000001')
+            ->assertSessionHasErrors('max_price');
+    }
+
+    public function test_index_rejects_bedrooms_above_the_cap(): void
+    {
+        $this->get('/?min_bedrooms=11')
+            ->assertSessionHasErrors('min_bedrooms');
+    }
+
     public function test_index_paginates_deterministically_when_listed_at_ties(): void
     {
         $listedAt = now()->subDay();
