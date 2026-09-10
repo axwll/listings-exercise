@@ -16,7 +16,10 @@ defineProps({
         <div v-if="alerts.data.length" class="grid gap-6">
             <div v-for="alert in alerts.data" :key="alert.id">
                 <p class="mb-2 text-xs font-medium text-slate-500">
-                    Matched: {{ alert.matched_saved_searches.map((s) => s.name).join(', ') }}
+                    <template v-if="alert.matched_saved_searches.length">
+                        Matched: {{ alert.matched_saved_searches.map((s) => s.name).join(', ') }}
+                    </template>
+                    <template v-else>Matched a saved search you've since deleted</template>
                 </p>
                 <ListingCard :listing="alert.listing" />
             </div>

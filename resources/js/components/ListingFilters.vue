@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import PriceInput from './PriceInput.vue';
 
 const props = defineProps({
     modelValue: { type: Object, required: true },
@@ -76,16 +77,12 @@ const fieldClasses =
 
         <div class="flex flex-col gap-1">
             <label for="max_price" class="text-xs font-medium text-slate-600">Max price (£)</label>
-            <input
+            <PriceInput
                 id="max_price"
-                :value="modelValue.max_price"
-                type="number"
-                min="0"
-                max="20000000"
-                step="10000"
+                :model-value="modelValue.max_price"
                 placeholder="Any"
                 :class="[fieldClasses, 'w-36']"
-                @input="update('max_price', $event.target.value)"
+                @update:model-value="(value) => update('max_price', value)"
             />
         </div>
 

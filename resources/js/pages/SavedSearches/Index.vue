@@ -1,7 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import AppLayout from '../../components/AppLayout.vue';
+import PriceInput from '../../components/PriceInput.vue';
 import { formatPrice } from '../../format';
 
 const props = defineProps({
@@ -12,6 +13,7 @@ const props = defineProps({
 });
 
 const regions = computed(() => [...new Set(props.branches.map((b) => b.region))].sort());
+const errors = computed(() => usePage().props.errors);
 
 const processing = ref(false);
 const form = ref({
@@ -72,16 +74,19 @@ const fieldClasses =
             <div class="flex flex-col gap-1 sm:col-span-3">
                 <label for="name" class="text-xs font-medium text-slate-600">Name</label>
                 <input id="name" v-model="form.name" type="text" required :class="fieldClasses" placeholder="e.g. 2-bed Chester under 300k" />
+                <p v-if="errors.name" class="text-xs text-red-600">{{ errors.name }}</p>
             </div>
 
             <div class="flex flex-col gap-1">
                 <label for="max_price" class="text-xs font-medium text-slate-600">Max price (£)</label>
-                <input id="max_price" v-model="form.max_price" type="number" min="0" max="20000000" :class="fieldClasses" />
+                <PriceInput id="max_price" v-model="form.max_price" :class="fieldClasses" />
+                <p v-if="errors.max_price" class="text-xs text-red-600">{{ errors.max_price }}</p>
             </div>
 
             <div class="flex flex-col gap-1">
                 <label for="min_bedrooms" class="text-xs font-medium text-slate-600">Min beds</label>
                 <input id="min_bedrooms" v-model="form.min_bedrooms" type="number" min="0" max="10" :class="fieldClasses" />
+                <p v-if="errors.min_bedrooms" class="text-xs text-red-600">{{ errors.min_bedrooms }}</p>
             </div>
 
             <div class="flex flex-col gap-1">
@@ -90,6 +95,7 @@ const fieldClasses =
                     <option value="">Any type</option>
                     <option v-for="type in propertyTypes" :key="type.value" :value="type.value">{{ type.label }}</option>
                 </select>
+                <p v-if="errors.property_type" class="text-xs text-red-600">{{ errors.property_type }}</p>
             </div>
 
             <div class="flex flex-col gap-1">
@@ -98,6 +104,7 @@ const fieldClasses =
                     <option value="">Any tenure</option>
                     <option v-for="tenure in tenures" :key="tenure.value" :value="tenure.value">{{ tenure.label }}</option>
                 </select>
+                <p v-if="errors.tenure" class="text-xs text-red-600">{{ errors.tenure }}</p>
             </div>
 
             <div class="flex flex-col gap-1">
@@ -106,6 +113,7 @@ const fieldClasses =
                     <option value="">Any area</option>
                     <option v-for="region in regions" :key="region" :value="region">{{ region }}</option>
                 </select>
+                <p v-if="errors.region" class="text-xs text-red-600">{{ errors.region }}</p>
             </div>
 
             <button type="submit" :disabled="processing" class="rounded-lg bg-slate-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-slate-700 disabled:opacity-50 sm:col-span-3 sm:w-fit">

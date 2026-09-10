@@ -53,4 +53,27 @@ class AlertPageTest extends TestCase
                 ->where('alerts.data.0.listing.id', $alert->listing_id)
             );
     }
+
+    /**
+     * An alert is a historical record — deleting the saved search that
+     * generated it shouldn't make the alert disappear too. The pivot row
+     * does cascade-delete, so matched_saved_searches becomes empty; the
+     * front end is responsible for not rendering that as a blank "Matched:".
+     */
+    public function test_index_still_shows_an_alert_after_its_matched_saved_search_is_deleted(): void
+    {
+        $demoUser = User::factory()->create();
+        $alert = Alert::factory()->for($demoUser)->create();
+        $savedSearch = SavedSearch::factory()->for($demoUser)->create();
+        $alert->savedSearches()->attach($savedSearch);
+
+        $savedSearch->delete();
+
+        $this->get('/alerts')
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->has('alerts.data', 1)
+                ->where('alerts.data.0.matched_saved_searches', [])
+            );
+    }
 }
