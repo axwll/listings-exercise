@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\ListingStatus;
+use App\Enums\Tenure;
 use App\Models\Listing;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -30,5 +31,12 @@ class ListingTest extends TestCase
 
         $this->assertInstanceOf(ListingStatus::class, $listing->status);
         $this->assertSame(ListingStatus::Live, $listing->status);
+    }
+
+    public function test_tenure_is_cast_to_enum(): void
+    {
+        $listing = Listing::factory()->live()->create(['tenure' => Tenure::Freehold]);
+
+        $this->assertSame(Tenure::Freehold, $listing->fresh()->tenure);
     }
 }

@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\ListingStatus;
 use App\Enums\PropertyType;
+use App\Enums\Tenure;
 use App\Models\Branch;
 use App\Models\Listing;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -32,6 +33,7 @@ class ListingFactory extends Factory
             'bedrooms' => fake()->numberBetween(1, 6),
             'bathrooms' => fake()->numberBetween(1, 4),
             'property_type' => fake()->randomElement(PropertyType::cases()),
+            'tenure' => fake()->randomElement(Tenure::cases()),
             'status' => ListingStatus::Draft,
             'listed_at' => null,
         ];

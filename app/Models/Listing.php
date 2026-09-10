@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ListingStatus;
 use App\Enums\PropertyType;
+use App\Enums\Tenure;
 use Database\Factories\ListingFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,6 +26,7 @@ use Illuminate\Support\Carbon;
  * @property int $bedrooms
  * @property int $bathrooms
  * @property PropertyType $property_type
+ * @property Tenure|null $tenure
  * @property ListingStatus $status
  * @property Carbon|null $listed_at
  * @property Carbon $created_at
@@ -46,6 +48,7 @@ class Listing extends Model
         'bedrooms',
         'bathrooms',
         'property_type',
+        'tenure',
         'status',
         'listed_at',
     ];
@@ -60,6 +63,7 @@ class Listing extends Model
             'bedrooms' => 'integer',
             'bathrooms' => 'integer',
             'property_type' => PropertyType::class,
+            'tenure' => Tenure::class,
             'status' => ListingStatus::class,
             'listed_at' => 'datetime',
         ];
